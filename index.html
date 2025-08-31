@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dommy Mommy Café Menu</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f0f8;
+    margin: 0;
+    padding: 0;
+  }
+  .menu-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    padding: 20px;
+  }
+  .menu-item {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .menu-item:hover {
+    transform: scale(1.03);
+  }
+  .menu-item.selected {
+    border: 2px solid #d63e9c;
+  }
+  button {
+    padding: 10px 20px;
+    margin: 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #d63e9c;
+    color: white;
+  }
+  #paymentModal {
+    display: none;
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+  }
+  #paymentModal div {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+  }
+  #paymentText {
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h1 style="text-align:center; padding:20px;">Dommy Mommy Café Menu</h1>
+
+<div class="menu-container" id="menuContainer">
+  <!-- Menu items will be loaded here -->
+</div>
+
+<div style="text-align:center;">
+  <button id="payButton" onclick="placeOrder()" disabled>Pay</button>
+</div>
+
+<!-- Payment Modal -->
+<div id="paymentModal">
+  <div>
+    <h2 id="paymentItemName"></h2>
+    <div id="paymentText"></div>
+    <button onclick="regenerateOrderStory()">Regenerate Story</button>
+    <button onclick="closeModal()">Close</button>
+  </div>
+</div><script>
+// Sample JSON menu
+const menuItems = [
+  {
+    "name": "Creamy Cappuccino",
+    "desc": "Rich espresso with foamed milk.",
+    "price": "$3.50",
+    "payment": "The foam softened every sip. It reminded me how small I feel. I confessed my neediness over the warmth."
+  },
+  {
+    "name": "Blueberry Muffin",
+    "desc": "Freshly baked, sweet and soft.",
+    "price": "$2.50",
+    "payment": "The sweetness stained my lips. I admitted my messy cravings. Each bite pulled me deeper."
+  },
+  {
+    "name": "Chocolate Brownie",
+    "desc": "Dense chocolate, slightly bitter, very naughty.",
+    "price": "$3.00",
+    "payment": "The chocolate melted in my mouth. I surrendered to indulgence. Its richness dominated my senses."
+  }
+];
+
+let selectedItems = [];
+
+// Load menu items dynamically
+const menuContainer = document.getElementById("menuContainer");
+
+menuItems.forEach((item, index) => {
+  const div = document.createElement("div");
+  div.classList.add("menu-item");
+  div.innerHTML = `
+    <h3>${item.name}</h3>
+    <p>${item.desc}</p>
+    <p><strong>${item.price}</strong></p>
+  `;
+  div.addEventListener("click", () => toggleSelection(item, div));
+  menuContainer.appendChild(div);
+});
+
+// Handle selection
+function toggleSelection(item, element) {
+  const index = selectedItems.indexOf(item);
+  if (index > -1) {
+    selectedItems.splice(index, 1);
+    element.classList.remove("selected");
+  } else {
+    selectedItems.push(item);
+    element.classList.add("selected");
+  }
+  updateOrderButton();
+}
+
+function updateOrderButton() {
+  const btn = document.getElementById("payButton");
+  btn.disabled = selectedItems.length === 0;
+}
+
+// Close modal
+function closeModal() {
+  document.getElementById("paymentModal").style.display = "none";
+}
+
+// Regenerate story
+function regenerateOrderStory() {
+  if (selectedItems.length === 0) return;
+  document.getElementById("paymentText").innerHTML = `<p>${generateKinkyPayment(selectedItems)}</p>`;
+}
+
+// Place order
+function placeOrder() {
+  if (selectedItems.length === 0) return;
+  document.getElementById("paymentItemName").textContent = "Your Custom Order";
+  document.getElementById("paymentText").innerHTML = `<p>${generateKinkyPayment(selectedItems)}</p>`;
+  document.getElementById("paymentModal").style.display = "flex";
+
+  // Optional: reset selection
+  selectedItems = [];
+  document.querySelectorAll(".menu-item").forEach(el => el.classList.remove("selected"));
+  updateOrderButton();
+}
+
+// === Kinky/Random Story Generator ===
+function generateKinkyPayment(selectedItems) {
+  if (selectedItems.length === 0) return "No items selected.";
+
+  function randomFragment(item) {
+    let parts = item.payment.split(".").map(s => s.trim()).filter(Boolean);
+    let chosen = parts[Math.floor(Math.random() * parts.length)];
+    return chosen.replace(item.name, "").trim();
+  }
+
+  const templates = [
+    (a, b) => `The ${a.name.toLowerCase()} made me admit ${randomFragment(a)}, and the ${b.name.toLowerCase()} commanded ${randomFragment(b)}.`,
+    (a, b) => `Drinking the ${a.name.toLowerCase()} felt like obedience, while the ${b.name.toLowerCase()} punished me with ${randomFragment(b)}.`,
+    (a, b) => `The ${a.name.toLowerCase()} coaxed me into surrender, but the ${b.name.toLowerCase()} demanded more: ${randomFragment(b)}.`
+  ];
+
+  const outros = [
+    "Together they left me obedient and exposed.",
+    "The order broke my resistance and marked me as theirs.",
+    "Blended, they turned craving into complete surrender.",
+    "What began as a café order ended as confession."
+  ];
+
+  const intros = [
+    "At Dommy Mommy Café, I thought I was just ordering ",
+    "It began with something simple: ",
+    "I placed my order, never expecting that "
+  ];
+
+  let intro = intros[Math.floor(Math.random() * intros.length)];
+  let story = intro;
+
+  if (selectedItems.length === 1) {
+    let i = selectedItems[0];
+    story += `the ${i.name.toLowerCase()} would take control. ${i.name} ${randomFragment(i)}. `;
+  } else {
+    story += `${selectedItems.map(i => i.name.toLowerCase()).join(", ")}. `;
+    for (let i = 0; i < selectedItems.length - 1; i++) {
+      let a = selectedItems[i];
+      let b = selectedItems[i+1];
+      let template = templates[Math.floor(Math.random() * templates.length)];
+      story += template(a, b) + " ";
+    }
+  }
+
+  story += outros[Math.floor(Math.random() * outros.length)];
+  return story;
+}
+
+</script>
+</body>
+</html>
